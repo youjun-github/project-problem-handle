@@ -22,7 +22,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import com.sigmatrix.exception.SigmatrixServiceException;
+import com.sigmatrix.utils.DateUtil;
 import com.sigmatrix.utils.EncryptUtil;
+import com.sigmatrix.utils.FileUtils;
 import com.sigmatrix.utils.QRCodeUtil;
 import com.sigmatrix.utils.Utils;
 
@@ -34,7 +36,7 @@ import com.sigmatrix.utils.Utils;
  */
 public class FindCodesFromIPCCodeFiles {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(FindCodesFromIPCCodeFiles.class);
+	private static final Logger logger = LoggerFactory.getLogger(FindCodesFromIPCCodeFiles.class);
 	
 	/**
 	 * 工控机key的map,key为工控机code,value为工控机的key
@@ -71,21 +73,23 @@ public class FindCodesFromIPCCodeFiles {
 			
 	}
 	
-public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 		
 		currentEnv = "prod"; // 当前环境
 //		String folderPathName = "E:\\youjun\\工作区\\TOP\\伊力特\\成品数据处理的码包及错误文件\\stable\\11";
 		//String folderPathName = "E:\\youjun\\工作区\\TOP\\伊力特\\20181012成品数据处理测试\\stable\\IPC00012key-YJWWjfhR\\11";
 //		String folderPathName = "E:\\youjun\\工作区\\TOP\\伊力特\\20181012成品数据处理测试\\stable\\IPC00012key-YJWWjfhR\\12";
 		//String folderPathName = "E:\\youjun\\工作区\\TOP\\伊力特\\成品数据处理的码包及错误文件\\prod\\历史\\XJYTL\\IPC00001\\11";
-		String folderPathName = "C:\\Users\\youjun\\XJYTL_prod\\XJYTL";
+		String folderPathName = "E:\\youjun\\工作区\\TOP\\生产环境工控机文件\\mfg-ipc-service\\XJYTL";
+		String resultFixPrefix = DateUtil.getCurrentDateStr(DateUtil.YMDHMSN);
+		String resultFilePath = "E:\\youjun\\工作区\\TOP\\生产环境工控机文件\\mfg-ipc-service\\XJYTL\\"+resultFixPrefix+"分析结果.txt";
 		
 		// 1、解密某个文件夹下的工控机文件
 		try{
 //			jiemiIPCZIP(folderPathName, "YJWWjfhR");
 			jiemiIPCZIP(folderPathName, "");
 		}catch(Exception e){
-			LOGGER.error("jiemiIPCZIP fail(可能为多次解密<文件已存在>)", e);
+			logger.error("jiemiIPCZIP fail(可能为多次解密<文件已存在>)", e);
 		}
 		String regulationFile = "-jiemi.zip";
 		String fileContentSplit = ",";
@@ -106,25 +110,37 @@ public static void main(String[] args) throws Exception {
 				"HTTP://SAO.SO/A/9DQE7$I-$W**IG4CF:ZACM" // 有
 				);*/
 		List<String> codeList = Arrays.asList(
-				"HTTP://SAO.SO/A/7H6$O3Q$4QFAPSCI48L9:-?P=0172142214"
+				"HTTP://SAO.SO/A/1N8.VN4PC+F1A-B9DFL1-0"
+//				"HTTP://SAO.SO/A/7H6$O3Q$4QFAPSCI48L9:-?P=0172142214"
 				//"HTTP://SAO.SO/A/W3TY:SHYA+:PNZUP9ILN38?P=0172143630"
 				);
 		int codeType = 1; // 1标准码,2密文
 		Map<String, List<String>> map = fromFileToFindCodeList(folderPathName, regulationFile, fileContentSplit, codeList, codeType);
 		// 3、打印出上述码存在过的文件
 		List<String> dbIPCFileList = new ArrayList<String>();
+		
+		// 写入文件:
+		
 		if(!CollectionUtils.isEmpty(map)){
 			System.out.println("***************3、找到的文件及码start*****************");
 			List<String> keySetToList = new ArrayList<String>();
 			keySetToList.addAll(map.keySet()); // 排序
 			Collections.sort(keySetToList);
+			
+			FileUtils.fileLinesWrite(resultFilePath, "查询的码:", true); // 追加到分析结果文件
+			for(String code:codeList) {
+				FileUtils.fileLinesWrite(resultFilePath, code, true); // 追加到分析结果文件
+			}
 			for (String key:keySetToList) {
 				List<String> lineContentList = map.get(key);
 				System.out.println("文件名:"+key);
+				FileUtils.fileLinesWrite(resultFilePath, "文件名:"+key, true); // 追加到分析结果文件
 				int i=1;
 				for(String lineContent:lineContentList) {
-					System.out.println("\t"+i+"、码:"+lineContent
-								+"\n\t密文:"+getQrCode(lineContent.split(fileContentSplit)[0])+","+getQrCode(lineContent.split(fileContentSplit)[1]));
+					String content = "\t"+i+"、码:"+lineContent
+							+"\n\t密文:"+getQrCode(lineContent.split(fileContentSplit)[0])+","+getQrCode(lineContent.split(fileContentSplit)[1]);
+					System.out.println(content);
+					FileUtils.fileLinesWrite(resultFilePath, content, true); // 追加到分析结果文件
 					i++;
 				}
 				// 将文件名全路径拆分取得文件名
@@ -181,7 +197,7 @@ public static void main(String[] args) throws Exception {
 	}
 	
 	/**
-	 * 解密某一個目錄下的工控機上傳的碼包文件
+	 * 解密某一個目錄下的所有工控機上傳的碼包文件(如果是目录则继续往下)
 	 * @param folderName 文件夹路徑名称
 	 * @param ipcKeys 解密密码,<font color="red"><b>2018-11-21修改了,传递空字符串即可,是从静态变量ipcKeyMap中获取的</b></font>
 	 * @throws Exception 
@@ -204,12 +220,21 @@ public static void main(String[] args) throws Exception {
 		// 2、解密IPC碼文件
 		for(String srcFilePath:files) {
 			// srcFilePath形如:E:\youjun\工作区\TOP\伊力特\20181012成品数据处理测试\stable\IPC00012key-YJWWjfhR\12\XJYTL_IPC00012_20181012093212981-jiemi.zip
-			String tagFilePath = srcFilePath.replace("", "-jiemi.");
+			if(srcFilePath.contains("-jiemi.")) {
+				logger.debug("解密时跳过文件:{}", srcFilePath);
+				continue;
+			}
+			String tagFilePath = srcFilePath.replace(".", "-jiemi.");
 			// 文件名形如:XJYTL_IPC00012_20181011104609987.zip  截取IPC00012部分,从ipcKeyMap中获取对应的解密密码
 			String[] fileSplits = srcFilePath.split("\\\\");
 			String fileName = fileSplits[fileSplits.length-1];
 			String[] fileNameSplits = fileName.split("_");
 			ipcKeys = ipcKeyMap.get(fileNameSplits[1]);
+			File tagFile = new File(tagFilePath);
+			if(tagFile.exists()) { // 已经在该目录中找到了解密文件(证明已解密过),跳过
+				logger.debug("{}已做过解密", srcFilePath);
+				continue;
+			}
 			EncryptUtil.decryptFile(srcFilePath, ipcKeys, tagFilePath);
 		}
 		
@@ -374,7 +399,7 @@ public static void main(String[] args) throws Exception {
 			}
 			return qrCode;
 		} catch (Exception e) {
-			LOGGER.error("{} 摘要失败 {}",urlCode);
+			logger.error("{} 摘要失败 {}",urlCode);
 			return null;
 		}
 		
