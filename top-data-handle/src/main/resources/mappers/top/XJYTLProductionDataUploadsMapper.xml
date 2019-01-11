@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sigmatrix.mapper.top.XJYTLProductionDataUploadsMapper">
+  <resultMap id="BaseResultMap" type="com.sigmatrix.entity.top.XJYTLProductionDataUploads">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="_id" jdbcType="INTEGER" property="id" />
+    <result column="_zip_url" jdbcType="VARCHAR" property="zipUrl" />
+    <result column="_is_download" jdbcType="SMALLINT" property="isDownload" />
+    <result column="_pack_success_num" jdbcType="INTEGER" property="packSuccessNum" />
+    <result column="_pack_fail_num" jdbcType="INTEGER" property="packFailNum" />
+    <result column="_pack_total_num" jdbcType="INTEGER" property="packTotalNum" />
+    <result column="_create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="_status" jdbcType="SMALLINT" property="status" />
+    <result column="_pack_level" jdbcType="SMALLINT" property="packLevel" />
+    <result column="_process_detail" jdbcType="VARCHAR" property="processDetail" />
+    <result column="_product_line_id" jdbcType="INTEGER" property="productLineId" />
+    <result column="_product_id" jdbcType="INTEGER" property="productId" />
+    <result column="_batch_code" jdbcType="VARCHAR" property="batchCode" />
+    <result column="_success_file_uri" jdbcType="VARCHAR" property="successFileUri" />
+    <result column="_fail_file_uri" jdbcType="VARCHAR" property="failFileUri" />
+    <result column="_server_id" jdbcType="INTEGER" property="serverId" />
+    <result column="_warehouse_id" jdbcType="INTEGER" property="warehouseId" />
+    <result column="_serial_number" jdbcType="VARCHAR" property="serialNumber" />
+    <result column="_produce_time" jdbcType="TIMESTAMP" property="produceTime" />
+    <result column="_team_id" jdbcType="INTEGER" property="teamId" />
+    <result column="_production_task_id" jdbcType="INTEGER" property="productionTaskId" />
+    <result column="_ipc_code" jdbcType="VARCHAR" property="ipcCode" />
+    <result column="_key" jdbcType="VARCHAR" property="key" />
+    <result column="_failure_times" jdbcType="INTEGER" property="failureTimes" />
+    <result column="_md5" jdbcType="VARCHAR" property="md5" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    _id, _zip_url, _is_download, _pack_success_num, _pack_fail_num, _pack_total_num, 
+    _create_time, _status, _pack_level, _process_detail, _product_line_id, _product_id, 
+    _batch_code, _success_file_uri, _fail_file_uri, _server_id, _warehouse_id, _serial_number, 
+    _produce_time, _team_id, _production_task_id, _ipc_code, _key, _failure_times, _md5
+  </sql>
+</mapper>
