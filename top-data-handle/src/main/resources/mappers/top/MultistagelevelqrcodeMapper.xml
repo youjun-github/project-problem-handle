@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sigmatrix.mapper.top.MultistagelevelqrcodeMapper">
+  <resultMap id="BaseResultMap" type="com.sigmatrix.entity.top.Multistagelevelqrcode">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="pack_content" jdbcType="VARCHAR" property="packContent" />
+    <result column="seq_num" jdbcType="VARCHAR" property="seqNum" />
+    <result column="current_gyl_product_id" jdbcType="INTEGER" property="currentGylProductId" />
+    <result column="new_gyl_product_id" jdbcType="INTEGER" property="newGylProductId" />
+    <result column="top_product_id" jdbcType="INTEGER" property="topProductId" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="is_handle" jdbcType="INTEGER" property="isHandle" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    pack_content, seq_num, current_gyl_product_id, new_gyl_product_id, top_product_id, 
+    create_time, is_handle
+  </sql>
+</mapper>
